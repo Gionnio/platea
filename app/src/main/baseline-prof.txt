@@ -1,0 +1,24 @@
+# Platea baseline profile: precompile the app code (AOT) instead of interpreting/JIT-compiling it on the TV.
+# The usual generator (Macrobenchmark BaselineProfileRule) needs Android 13+ or root; the Fire TV runs Android 11,
+# so the rules use wildcards. Compose, Compose for TV, Media3 and Coil ship their own profiles, merged by AGP.
+# H = hot, S = startup, P = post-startup.
+
+# Platea: home, theme, engine bridge, journal
+HSPLcom/github/gionnio/platea/**->**(**)**
+Lcom/github/gionnio/platea/**;
+
+# Playback engine
+HSPLcom/github/gionnio/platea/engine/**->**(**)**
+Lcom/github/gionnio/platea/engine/**;
+
+# Inherited app code: startup, navigation, services, details pages, player
+HSPLcom/github/gionnio/platea/**->**(**)**
+Lcom/github/gionnio/platea/**;
+
+# Jellyfin SDK models and API (JSON parsing of every server response)
+HSPLorg/jellyfin/sdk/**->**(**)**
+Lorg/jellyfin/sdk/**;
+
+# kotlinx.serialization runtime (server responses, home cache)
+HSPLkotlinx/serialization/**->**(**)**
+Lkotlinx/serialization/**;

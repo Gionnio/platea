@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Theme.Platea" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:colorBackground">@android:color/background_dark</item>
+        <item name="android:windowBackground">@color/platea_ground</item>
+    </style>
+</resources>

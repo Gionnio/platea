@@ -1,0 +1,15 @@
+{
+  "uniqueId": "com.github.erikdkennedy.figtree",
+  "developers": [
+    {
+      "name": "Erik Kennedy"
+    }
+  ],
+  "artifactVersion": "2.002",
+  "description": "Figtree, the interface font",
+  "name": "Figtree",
+  "licenses": [
+    "ofl-figtree"
+  ],
+  "website": "https://github.com/erikdkennedy/figtree"
+}

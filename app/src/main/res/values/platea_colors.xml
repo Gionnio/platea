@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Velvet ground of the Platea interface, also the window background at start-up -->
+    <color name="platea_ground">#FF100B0C</color>
+</resources>

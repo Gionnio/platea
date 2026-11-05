@@ -1,0 +1,23 @@
+[Script Info]
+Title: Platea ASS test
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,64,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,2,80,80,70,1
+Style: Cartello,Georgia,58,&H0040C8F0,&H000000FF,&H00101010,&H00000000,-1,-1,0,0,100,100,2,0,1,3,0,8,80,80,60,1
+Style: Karaoke,Arial,60,&H00FFFFFF,&H00F0A040,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,2,80,80,170,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:05.00,Default,,0,0,0,,Platea · ASS · stile predefinito, contorno e ombra
+Dialogue: 0,0:00:06.00,0:00:10.00,Cartello,,0,0,0,,{\fad(400,400)}CARTELLO IN ALTO · corsivo dorato con dissolvenza
+Dialogue: 0,0:00:11.00,0:00:15.00,Default,,0,0,0,,Testo {\i1}corsivo{\i0}, {\b0}normale{\b1} e {\c&H0060A0FF&}colorato
+Dialogue: 0,0:00:16.00,0:00:20.00,Default,,0,0,0,,{\pos(480,540)\fs48}Posizione libera a sinistra
+Dialogue: 0,0:00:16.00,0:00:20.00,Default,,0,0,0,,{\pos(1440,540)\fs48\frz-8}e ruotata a destra
+Dialogue: 0,0:00:21.00,0:00:26.00,Karaoke,,0,0,0,,{\k60}Ka{\k60}ra{\k60}o{\k60}ke {\k80}di {\k100}prova
+Dialogue: 0,0:00:21.00,0:00:26.00,Default,,0,0,0,,Due righe insieme:\Nla seconda va a capo
