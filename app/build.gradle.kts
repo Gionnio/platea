@@ -41,7 +41,7 @@ val gitCommitCount =
 
 // Platea's own version: 1.1.0 is the first one without the inherited interface, 1.2.0 the first public one.
 // The name also carries the version code and the hash, so every build can be told apart without git tags.
-val plateaVersion = "1.2.0"
+val plateaVersion = "1.2.1"
 val gitHash =
     providers
         .exec { commandLine("git", "rev-parse", "--short=8", "HEAD") }
