@@ -395,7 +395,7 @@ internal fun TopBar(
         Image(
             painterResource(R.drawable.platea_mark),
             contentDescription = null,
-            modifier = Modifier.size(20.dp).clip(RoundedCornerShape(5.dp)),
+            modifier = Modifier.size(20.dp),
         )
         Spacer(Modifier.width(7.dp))
         Text("Platea", style = PlateaType.Brand, color = PlateaColors.Text)

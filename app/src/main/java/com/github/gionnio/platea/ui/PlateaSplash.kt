@@ -50,7 +50,7 @@ fun PlateaSplash(modifier: Modifier = Modifier) {
                 Image(
                     painterResource(R.drawable.platea_mark),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)),
+                    modifier = Modifier.size(40.dp),
                 )
                 Spacer(Modifier.width(12.dp))
                 Text("Platea", style = PlateaType.Brand.copy(fontSize = 30.sp), color = PlateaColors.Text)
@@ -102,7 +102,7 @@ fun PlateaBrand(modifier: Modifier = Modifier) {
         Image(
             painterResource(R.drawable.platea_mark),
             contentDescription = null,
-            modifier = Modifier.size(20.dp).clip(RoundedCornerShape(5.dp)),
+            modifier = Modifier.size(20.dp),
         )
         Spacer(Modifier.width(7.dp))
         Text("Platea", style = PlateaType.Brand, color = PlateaColors.Text)
