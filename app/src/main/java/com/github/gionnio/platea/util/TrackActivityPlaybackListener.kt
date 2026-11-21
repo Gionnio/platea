@@ -5,10 +5,16 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.github.gionnio.platea.ui.launchIO
 import com.github.gionnio.platea.ui.playback.CurrentPlayback
+import java.util.Timer
+import java.util.TimerTask
+import java.util.UUID
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.playStateApi
+import org.jellyfin.sdk.api.client.extensions.sessionApi
 import org.jellyfin.sdk.model.api.PlayMethod
 import org.jellyfin.sdk.model.api.PlaybackOrder
 import org.jellyfin.sdk.model.api.PlaybackProgressInfo
@@ -17,12 +23,6 @@ import org.jellyfin.sdk.model.api.PlaybackStopInfo
 import org.jellyfin.sdk.model.api.RepeatMode
 import org.jellyfin.sdk.model.extensions.inWholeTicks
 import timber.log.Timber
-import java.util.Timer
-import java.util.TimerTask
-import java.util.UUID
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Listens to playback and periodically saves playback activity to the server
@@ -60,7 +60,7 @@ class TrackActivityPlaybackListener(
         launch("reportPlaybackStart") {
             getState.invoke()?.let { state ->
                 Timber.v("reportPlaybackStart for ${state.itemId}")
-                api.playStateApi.reportPlaybackStart(
+                api.sessionApi.reportPlaybackStart(
                     PlaybackStartInfo(
                         canSeek = true,
                         itemId = state.itemId,
@@ -99,7 +99,7 @@ class TrackActivityPlaybackListener(
                     Timber.w("Negative position when reporting playback stopped: %s", position)
                 }
                 try {
-                    api.playStateApi.reportPlaybackStopped(
+                    api.sessionApi.reportPlaybackStopped(
                         PlaybackStopInfo(
                             itemId = state.itemId,
                             positionTicks = position.inWholeTicks.takeIf { it >= 0 },
@@ -145,7 +145,7 @@ class TrackActivityPlaybackListener(
                     lastKnownMs = calcPosition
                     val isPaused = withContext(PlateaDispatchers.Main) { !player.isPlaying }
                     Timber.v("saveActivity: itemId=${state.itemId}, pos=$calcPosition")
-                    api.playStateApi.reportPlaybackProgress(
+                    api.sessionApi.reportPlaybackProgress(
                         PlaybackProgressInfo(
                             itemId = state.itemId,
                             positionTicks = calcPosition.milliseconds.inWholeTicks,

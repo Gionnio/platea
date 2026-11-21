@@ -4,14 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.gionnio.platea.data.ServerRepository
 import com.github.gionnio.platea.data.model.BaseItem
+import com.github.gionnio.platea.home.NavLibrary
 import com.github.gionnio.platea.services.ImageUrlService
 import com.github.gionnio.platea.services.NavigationManager
-import com.github.gionnio.platea.ui.nav.Destination
-import com.github.gionnio.platea.util.SearchRelevance
-import com.github.gionnio.platea.util.PlateaDispatchers
-import com.github.gionnio.platea.home.NavLibrary
 import com.github.gionnio.platea.ui.FocusMemory
+import com.github.gionnio.platea.ui.nav.Destination
+import com.github.gionnio.platea.util.PlateaDispatchers
+import com.github.gionnio.platea.util.SearchRelevance
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -20,14 +21,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.itemsApi
-import org.jellyfin.sdk.api.client.extensions.personsApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
+import org.jellyfin.sdk.api.client.extensions.personApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.request.GetItemsRequest
 import timber.log.Timber
-import javax.inject.Inject
 
 enum class SearchGroup { MOVIES, SERIES, EPISODES, PEOPLE, COLLECTIONS }
 
@@ -104,7 +104,7 @@ class PlateaSearchViewModel
                     val people =
                         async {
                             runCatching {
-                                api.personsApi
+                                api.personApi
                                     .getPersons(searchTerm = q, limit = LIMIT, userId = serverRepository.currentUser?.id)
                                     .content.items
                                     .map { BaseItem(it) }
@@ -133,7 +133,7 @@ class PlateaSearchViewModel
             kind: BaseItemKind,
         ): List<BaseItem> =
             runCatching {
-                api.itemsApi
+                api.libraryApi
                     .getItems(
                         GetItemsRequest(
                             userId = serverRepository.currentUser?.id,

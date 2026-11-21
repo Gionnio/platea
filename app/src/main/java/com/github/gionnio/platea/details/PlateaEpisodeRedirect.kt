@@ -7,17 +7,17 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.github.gionnio.platea.services.NavigationManager
-import com.github.gionnio.platea.ui.nav.Destination
-import com.github.gionnio.platea.util.PlateaDispatchers
 import com.github.gionnio.platea.ui.PlateaLoading
+import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.ui.theme.PlateaColors
+import com.github.gionnio.platea.util.PlateaDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class PlateaEpisodeRedirectViewModel
@@ -30,7 +30,7 @@ class PlateaEpisodeRedirectViewModel
         suspend fun redirect(destination: Destination.MediaItem) {
             val seriesId =
                 withContext(PlateaDispatchers.IO) {
-                    runCatching { api.userLibraryApi.getItem(destination.itemId).content.seriesId }
+                    runCatching { api.libraryApi.getItem(destination.itemId).content.seriesId }
                         .onFailure { Timber.w(it, "Episode %s", destination.itemId) }
                         .getOrNull()
                 }

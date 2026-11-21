@@ -44,7 +44,7 @@
 ## 🚀 Requirements
 
 - Android TV / Google TV 6.0 or later, or Fire TV (Fire OS 7 or later)
-- A Jellyfin server, 10.11 or later (used with 12.4)
+- A Jellyfin server, 12 or later (used with 12.4)
 - Tested on: Amazon Fire TV Stick 4K Max (2nd gen.), Sony BRAVIA (Android TV 12); TCL Google TV planned
 
 ## 📥 Installation

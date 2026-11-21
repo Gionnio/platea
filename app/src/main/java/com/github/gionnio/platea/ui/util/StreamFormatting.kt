@@ -67,7 +67,10 @@ object StreamFormatting {
                         null,
                         -> null
 
-                        VideoRangeType.HDR10 -> "HDR10"
+                        // invalid Dolby Vision metadata: the TV shows the HDR10 base layer
+                        VideoRangeType.HDR10,
+                        VideoRangeType.DOVI_INVALID,
+                        -> "HDR10"
 
                         VideoRangeType.HDR10_PLUS -> "HDR10+"
 
@@ -77,6 +80,9 @@ object StreamFormatting {
                         VideoRangeType.DOVI_WITH_HDR10,
                         VideoRangeType.DOVI_WITH_HLG,
                         VideoRangeType.DOVI_WITH_SDR,
+                        VideoRangeType.DOVI_WITH_EL,
+                        VideoRangeType.DOVI_WITH_HDR10_PLUS,
+                        VideoRangeType.DOVI_WITH_ELHDR10_PLUS,
                         -> resources.getString(R.string.dolby_vision)
                     }
                 }

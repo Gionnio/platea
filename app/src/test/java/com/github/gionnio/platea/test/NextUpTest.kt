@@ -6,26 +6,26 @@ import com.github.gionnio.platea.preferences.AppPreferences
 import com.github.gionnio.platea.preferences.updateHomePagePreferences
 import com.github.gionnio.platea.services.DatePlayedService
 import com.github.gionnio.platea.services.DisplayPreferencesService
-import com.github.gionnio.platea.services.WatchedService
 import com.github.gionnio.platea.services.LatestNextUpService
-import com.github.gionnio.platea.ui.mockQueryResult
+import com.github.gionnio.platea.services.WatchedService
 import com.github.gionnio.platea.services.testDisplayPreferencesDto
+import com.github.gionnio.platea.ui.mockQueryResult
 import io.mockk.CapturingSlot
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.jellyfin.sdk.api.client.extensions.showApi
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
-import org.jellyfin.sdk.api.operations.TvShowsApi
+import org.jellyfin.sdk.api.operations.ShowApi
 import org.jellyfin.sdk.model.UUID
 import org.jellyfin.sdk.model.api.request.GetNextUpRequest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 
 class NextUpTest {
     @get:Rule
@@ -33,7 +33,7 @@ class NextUpTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private val mockTvShowsApi = mockk<TvShowsApi>()
+    private val mockTvShowsApi = mockk<ShowApi>()
     private val mockApi = mockk<ApiClient>(relaxed = true)
     private val mockDatePlayedService = mockk<DatePlayedService>()
     private val mockDisplayPreferencesService = mockk<DisplayPreferencesService>()
@@ -49,7 +49,7 @@ class NextUpTest {
 
     @Before
     fun setUp() {
-        every { mockApi.tvShowsApi } returns mockTvShowsApi
+        every { mockApi.showApi } returns mockTvShowsApi
         coEvery {
             mockDisplayPreferencesService.getDisplayPreferences(
                 any(),

@@ -45,22 +45,6 @@ val supportedAudioCodecs =
         Codec.Audio.VORBIS,
     )
 
-// fun createDeviceProfile(
-//    context: Context,
-//    userPreferences: UserPreferences,
-//    serverVersion: ServerVersion?,
-// ) = userPreferences.appPreferences.playbackPreferences.let { prefs ->
-//    createDeviceProfile(
-//        mediaTest = MediaCodecCapabilitiesTest(context),
-//        maxBitrate = prefs.maxBitrate.toInt(),
-//        isAC3Enabled = prefs.overrides.ac3Supported,
-//        downMixAudio = prefs.overrides.downmixStereo,
-//        assDirectPlay = prefs.overrides.directPlayAss,
-//        pgsDirectPlay = prefs.overrides.directPlayPgs,
-//        jellyfinTenEleven = serverVersion != null && serverVersion >= ServerVersion(10, 11, 0),
-//    )
-// }
-
 fun createDeviceProfile(
     mediaTest: MediaCodecCapabilitiesTest,
     maxBitrate: Int,
@@ -70,7 +54,6 @@ fun createDeviceProfile(
     pgsDirectPlay: Boolean,
     dolbyVisionELDirectPlay: Boolean,
     decodeAv1: Boolean,
-    jellyfinTenEleven: Boolean,
     preferAc3ForSurround: Boolean,
 ) = buildDeviceProfile {
     val allowedAudioCodecs =
@@ -461,16 +444,15 @@ fun createDeviceProfile(
 
     // / HDR exclude list
 
-    // TODO Use VideoRangeType enum with Jellyfin 10.11 based SDK
     val unsupportedRangeTypesAv1 =
         buildSet {
-            if (jellyfinTenEleven) add("DOVIInvalid")
+            add("DOVIInvalid")
 
             if (!decodeAv1) {
                 if (!supportsAV1DolbyVision) {
                     add(VideoRangeType.DOVI.serialName)
                     if (!supportsAV1HDR10) add(VideoRangeType.DOVI_WITH_HDR10.serialName)
-                    if (jellyfinTenEleven && !supportsAV1HDR10Plus) add("DOVIWithHDR10Plus")
+                    if (!supportsAV1HDR10Plus) add("DOVIWithHDR10Plus")
                 }
 
                 if (!supportsAV1HDR10Plus) {
@@ -481,23 +463,20 @@ fun createDeviceProfile(
             }
         }
 
-    // TODO Use VideoRangeType enum with Jellyfin 10.11 based SDK
     val unsupportedRangeTypesHevc =
         buildSet {
-            if (jellyfinTenEleven) add("DOVIInvalid")
+            add("DOVIInvalid")
 
             if (!supportsHevcDolbyVisionEL) {
                 if (!dolbyVisionELDirectPlay) {
-                    if (jellyfinTenEleven) {
-                        add("DOVIWithEL")
-                        if (!supportsHevcHDR10Plus && !KnownDefects.hevcDoviHdr10PlusBug) add("DOVIWithELHDR10Plus")
-                    }
+                    add("DOVIWithEL")
+                    if (!supportsHevcHDR10Plus && !KnownDefects.hevcDoviHdr10PlusBug) add("DOVIWithELHDR10Plus")
                 }
 
                 if (!supportsHevcDolbyVision) {
                     add(VideoRangeType.DOVI.serialName)
                     if (!supportsHevcHDR10) add(VideoRangeType.DOVI_WITH_HDR10.serialName)
-                    if (jellyfinTenEleven && !supportsHevcHDR10Plus && !KnownDefects.hevcDoviHdr10PlusBug) {
+                    if (!supportsHevcHDR10Plus && !KnownDefects.hevcDoviHdr10PlusBug) {
                         add(
                             "DOVIWithHDR10Plus",
                         )
@@ -510,7 +489,7 @@ fun createDeviceProfile(
                 if (!supportsHevcHDR10) add(VideoRangeType.HDR10.serialName)
             }
 
-            if (jellyfinTenEleven && KnownDefects.hevcDoviHdr10PlusBug) {
+            if (KnownDefects.hevcDoviHdr10PlusBug) {
                 add("DOVIWithHDR10Plus")
                 add("DOVIWithELHDR10Plus")
             }

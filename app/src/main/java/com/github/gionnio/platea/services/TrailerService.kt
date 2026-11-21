@@ -10,10 +10,10 @@ import com.github.gionnio.platea.data.model.RemoteTrailer
 import com.github.gionnio.platea.data.model.Trailer
 import com.github.gionnio.platea.ui.nav.Destination
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 
 /**
  * Gets trailers for media
@@ -65,7 +65,7 @@ class TrailerService
             val localTrailerCount = item.data.localTrailerCount ?: return emptyList()
             val localTrailers =
                 if (localTrailerCount > 0) {
-                    api.userLibraryApi.getLocalTrailers(item.id).content.map {
+                    api.libraryApi.getLocalTrailers(item.id).content.map {
                         LocalTrailer(BaseItem.from(it, api))
                     }
                 } else {

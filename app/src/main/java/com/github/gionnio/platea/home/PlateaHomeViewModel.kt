@@ -3,33 +3,37 @@
 package com.github.gionnio.platea.home
 
 import android.content.Context
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.gionnio.platea.R
 import com.github.gionnio.platea.data.ServerRepository
 import com.github.gionnio.platea.data.model.BaseItem
+import com.github.gionnio.platea.preferences.AppPreferences
 import com.github.gionnio.platea.services.ImageUrlService
 import com.github.gionnio.platea.services.LatestNextUpService
 import com.github.gionnio.platea.services.NavigationManager
-import androidx.datastore.core.DataStore
-import com.github.gionnio.platea.preferences.AppPreferences
-import kotlinx.coroutines.flow.first
 import com.github.gionnio.platea.ui.SlimItemFields
 import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.util.PlateaDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.ZoneOffset
+import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.itemsApi
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
+import org.jellyfin.sdk.api.client.extensions.showApi
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ImageType
@@ -39,13 +43,8 @@ import org.jellyfin.sdk.model.api.MediaStreamType
 import org.jellyfin.sdk.model.api.SortOrder
 import org.jellyfin.sdk.model.api.request.GetItemsRequest
 import org.jellyfin.sdk.model.api.request.GetLatestMediaRequest
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import org.jellyfin.sdk.model.serializer.UUIDSerializer
 import timber.log.Timber
-import java.time.ZoneOffset
-import java.util.UUID
-import javax.inject.Inject
 
 /** A library shown in the top bar (Film, Serie TV, Filmini...). */
 @Serializable
@@ -283,7 +282,7 @@ class PlateaHomeViewModel
             kind: BaseItemKind,
             group: Boolean,
         ): List<BaseItem> =
-            api.userLibraryApi
+            api.libraryApi
                 .getLatestMedia(
                     GetLatestMediaRequest(
                         fields = SlimItemFields + listOf(ItemFields.DATE_CREATED, ItemFields.MEDIA_STREAMS, ItemFields.CHILD_COUNT),
@@ -295,7 +294,7 @@ class PlateaHomeViewModel
                 .map { BaseItem(it) }
 
         private suspend fun topRatedUnseen(userId: UUID): List<BaseItem> =
-            api.itemsApi
+            api.libraryApi
                 .getItems(
                     GetItemsRequest(
                         userId = userId,
@@ -312,7 +311,7 @@ class PlateaHomeViewModel
                 .map { BaseItem(it) }
 
         private suspend fun collections(userId: UUID): List<BaseItem> =
-            api.itemsApi
+            api.libraryApi
                 .getItems(
                     GetItemsRequest(
                         userId = userId,
@@ -387,7 +386,7 @@ class PlateaHomeViewModel
             seriesId: UUID,
         ): BaseItemDto? =
             runCatching {
-                api.tvShowsApi
+                api.showApi
                     .getEpisodes(seriesId, userId = userId, limit = 1, fields = listOf(ItemFields.MEDIA_STREAMS))
                     .content.items
                     .firstOrNull()
@@ -401,9 +400,9 @@ class PlateaHomeViewModel
         ): FeaturedUi? =
             runCatching {
                 // Full item: genres, rating, seasons, streams
-                val full = api.userLibraryApi.getItem(itemId = item.id).content
+                val full = api.libraryApi.getItem(itemId = item.id).content
                 val showId = full.seriesId ?: if (full.type == BaseItemKind.SERIES) full.id else null
-                val show = showId?.let { api.userLibraryApi.getItem(itemId = it).content }
+                val show = showId?.let { api.libraryApi.getItem(itemId = it).content }
                 val streamsOf = if (c.kind == FeaturedCandidate.Kind.SERIES) firstEpisode else full
                 val theme = showId?.let { themeFor(it, show) }
                 val genre = (show ?: full).genres?.firstOrNull()

@@ -7,18 +7,19 @@ import androidx.lifecycle.viewModelScope
 import com.github.gionnio.platea.R
 import com.github.gionnio.platea.data.ServerRepository
 import com.github.gionnio.platea.data.model.BaseItem
-import com.github.gionnio.platea.services.WatchedService
+import com.github.gionnio.platea.home.NavLibrary
 import com.github.gionnio.platea.services.ImageUrlService
 import com.github.gionnio.platea.services.NavigationManager
+import com.github.gionnio.platea.services.WatchedService
+import com.github.gionnio.platea.ui.FocusMemory
 import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.util.PlateaDispatchers
-import com.github.gionnio.platea.home.NavLibrary
-import com.github.gionnio.platea.ui.FocusMemory
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,9 +27,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.genresApi
-import org.jellyfin.sdk.api.client.extensions.itemsApi
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.genreApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.CollectionType
 import org.jellyfin.sdk.model.api.ImageType
@@ -38,7 +38,6 @@ import org.jellyfin.sdk.model.api.ItemSortBy
 import org.jellyfin.sdk.model.api.SortOrder
 import org.jellyfin.sdk.model.api.request.GetItemsRequest
 import timber.log.Timber
-import java.util.UUID
 
 enum class LibraryFilter(
     val label: Int,
@@ -132,14 +131,14 @@ class PlateaLibraryViewModel
             viewModelScope.launch(PlateaDispatchers.IO) {
                 val user = serverRepository.currentUserDto ?: return@launch
                 runCatching {
-                    val title = api.userLibraryApi.getItem(libraryId).content.name.orEmpty()
+                    val title = api.libraryApi.getItem(libraryId).content.name.orEmpty()
                     val libraries =
                         plateaLibraries.get(user.id)
                     _state.update { it.copy(title = title, libraries = libraries, userInitial = user.name?.take(1)?.uppercase().orEmpty()) }
                 }.onFailure { Timber.w(it, "Library header") }
                 if (!isFolders && !isCollections) runCatching {
                     val genres =
-                        api.genresApi
+                        api.genreApi
                             .getGenres(parentId = libraryId, userId = user.id, includeItemTypes = listOf(kind))
                             .content.items
                             .mapNotNull { it.name }
@@ -217,7 +216,7 @@ class PlateaLibraryViewModel
             val s = _state.value
             val collectionsView = s.filter == LibraryFilter.COLLECTIONS
             val response =
-                api.itemsApi
+                api.libraryApi
                     .getItems(
                         GetItemsRequest(
                             userId = serverRepository.currentUser?.id,

@@ -70,6 +70,7 @@ class RemuxedFileChoiceTest {
         isExternal = false,
         isTextSubtitleStream = false,
         supportsExternalStream = false,
+        isOriginal = true,
     )
 
     // Superman after the remux: 0 video, 1 Italian AC3, 2 Italian forced subtitles

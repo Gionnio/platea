@@ -25,11 +25,11 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import com.github.gionnio.platea.engine.TrickplayTiles
 import com.github.gionnio.platea.ui.theme.PlateaColors
-import org.jellyfin.sdk.model.api.TrickplayInfo
+import org.jellyfin.sdk.model.api.TrickplayInfoDto
 
 /** Jellyfin's trickplay thumbnails of the title being played, and the address of each sheet. */
 class TrickplaySource(
-    val info: TrickplayInfo,
+    val info: TrickplayInfoDto,
     val sheetUrl: (Int) -> String,
 )
 

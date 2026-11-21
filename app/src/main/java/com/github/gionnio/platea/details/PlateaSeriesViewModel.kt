@@ -7,21 +7,22 @@ import com.github.gionnio.platea.R
 import com.github.gionnio.platea.data.ChosenStreams
 import com.github.gionnio.platea.data.ItemPlaybackRepository
 import com.github.gionnio.platea.data.model.BaseItem
-import com.github.gionnio.platea.services.WatchedService
+import com.github.gionnio.platea.home.PlateaThemeSongs
+import com.github.gionnio.platea.home.ThemeRef
 import com.github.gionnio.platea.services.ImageUrlService
 import com.github.gionnio.platea.services.NavigationManager
 import com.github.gionnio.platea.services.StreamChoiceService
 import com.github.gionnio.platea.services.UserPreferencesService
+import com.github.gionnio.platea.services.WatchedService
+import com.github.gionnio.platea.ui.FocusMemory
 import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.util.PlateaDispatchers
-import com.github.gionnio.platea.home.PlateaThemeSongs
-import com.github.gionnio.platea.home.ThemeRef
-import com.github.gionnio.platea.ui.FocusMemory
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,13 +31,12 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
+import org.jellyfin.sdk.api.client.extensions.showApi
 import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.MediaStreamType
 import timber.log.Timber
-import java.util.UUID
 
 data class SeasonUi(
     val id: UUID,
@@ -108,8 +108,8 @@ class PlateaSeriesViewModel
         fun load(firstTime: Boolean = false) {
             viewModelScope.launch(PlateaDispatchers.IO) {
                 runCatching {
-                    val seriesDeferred = async { BaseItem(api.userLibraryApi.getItem(seriesId).content) }
-                    val seasonsDeferred = async { api.tvShowsApi.getSeasons(seriesId, enableUserData = true).content.items }
+                    val seriesDeferred = async { BaseItem(api.libraryApi.getItem(seriesId).content) }
+                    val seasonsDeferred = async { api.showApi.getSeasons(seriesId, enableUserData = true).content.items }
                     val next = nextEpisode()
                     val series = seriesDeferred.await()
                     val seasons =
@@ -128,7 +128,7 @@ class PlateaSeriesViewModel
                         }
                     val focusSeason =
                         if (firstTime && focusEpisodeId != null) {
-                            runCatching { api.userLibraryApi.getItem(focusEpisodeId).content.seasonId }.getOrNull()
+                            runCatching { api.libraryApi.getItem(focusEpisodeId).content.seasonId }.getOrNull()
                         } else {
                             null
                         }
@@ -167,19 +167,19 @@ class PlateaSeriesViewModel
         /** In progress or next up (Jellyfin's Next Up includes resumable episodes), else the first episode. */
         private suspend fun nextEpisode(): BaseItem? {
             val id =
-                api.tvShowsApi
+                api.showApi
                     .getNextUp(seriesId = seriesId, limit = 1, enableResumable = true)
                     .content.items
                     .firstOrNull()
                     ?.id
-                    ?: api.tvShowsApi
+                    ?: api.showApi
                         .getEpisodes(seriesId, limit = 1)
                         .content.items
                         .firstOrNull()
                         ?.id
                     ?: return null
             // Full item: media sources and streams for badges, tracks and the playback prediction
-            return BaseItem(api.userLibraryApi.getItem(id).content)
+            return BaseItem(api.libraryApi.getItem(id).content)
         }
 
         fun selectSeason(index: Int) {
@@ -198,7 +198,7 @@ class PlateaSeriesViewModel
             episodesJob =
                 viewModelScope.launch(PlateaDispatchers.IO) {
                     runCatching {
-                        api.tvShowsApi
+                        api.showApi
                             .getEpisodes(
                                 seriesId,
                                 seasonId = season.id,
@@ -253,7 +253,7 @@ class PlateaSeriesViewModel
                     if (item.id == _state.value.next?.id) {
                         _state.value.next!!
                     } else {
-                        runCatching { BaseItem(api.userLibraryApi.getItem(item.id).content) }.getOrNull() ?: return@launch
+                        runCatching { BaseItem(api.libraryApi.getItem(item.id).content) }.getOrNull() ?: return@launch
                     }
                 val chosen = if (full.id == _state.value.next?.id) _state.value.nextChosen ?: chosenStreams(full) else chosenStreams(full)
                 _state.update { it.copy(tracksItem = full, tracksChosen = chosen) }

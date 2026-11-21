@@ -2,14 +2,14 @@ package com.github.gionnio.platea
 
 import com.github.gionnio.platea.home.NavLibrary
 import com.github.gionnio.platea.ui.nav.Destination
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.userViewsApi
-import org.jellyfin.sdk.model.api.CollectionType
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.client.extensions.userViewApi
+import org.jellyfin.sdk.model.api.CollectionType
 
 /**
  * The libraries of the top bar, asked to the server once and shared by the pages (home, library, search).
@@ -34,7 +34,7 @@ class PlateaLibraries
                 val fresh = cachedFor == userId && System.currentTimeMillis() - cachedAt < MAX_AGE_MS
                 if (!fresh || refresh) {
                     cached =
-                        api.userViewsApi
+                        api.userViewApi
                             .getUserViews(userId = userId)
                             .content.items
                             .filter { it.collectionType in ORDER }

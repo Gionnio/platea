@@ -11,15 +11,17 @@ import com.github.gionnio.platea.util.reset
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
+import org.jellyfin.sdk.api.client.extensions.showApi
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.Response
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
-import org.jellyfin.sdk.api.operations.TvShowsApi
+import org.jellyfin.sdk.api.operations.ShowApi
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemDtoQueryResult
 import org.jellyfin.sdk.model.api.DisplayPreferencesDto
@@ -33,8 +35,6 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDateTime
-import java.util.UUID
 
 class LatestNextUpServiceTests {
     private val testDispatcher = StandardTestDispatcher()
@@ -45,7 +45,7 @@ class LatestNextUpServiceTests {
     private val seriesId3 = UUID.randomUUID()
 
     private val mockApi = mockk<ApiClient>(relaxed = true)
-    private val mockTvShowsApi = mockk<TvShowsApi>()
+    private val mockTvShowsApi = mockk<ShowApi>()
     private val mockDatePlayedService = mockk<DatePlayedService>()
     private val mockDisplayPreferencesService = mockk<DisplayPreferencesService>()
     private val mockWatchedService = mockk<WatchedService>(relaxed = true)
@@ -57,7 +57,7 @@ class LatestNextUpServiceTests {
     @Before
     fun setUp() {
         PlateaDispatchers.configure(testDispatcher)
-        every { mockApi.tvShowsApi } returns mockTvShowsApi
+        every { mockApi.showApi } returns mockTvShowsApi
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

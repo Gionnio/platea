@@ -1,15 +1,18 @@
 package com.github.gionnio.platea.playback
 
-import com.github.gionnio.platea.util.isForcedTrack
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
+import com.github.gionnio.platea.PlaybackJournal
 import com.github.gionnio.platea.R
 import com.github.gionnio.platea.data.ServerRepository
 import com.github.gionnio.platea.data.model.BaseItem
 import com.github.gionnio.platea.data.model.TrackIndex
+import com.github.gionnio.platea.engine.PlayMethod as EnginePlayMethod
+import com.github.gionnio.platea.engine.PlayMethods
+import com.github.gionnio.platea.nas.NasConfig
 import com.github.gionnio.platea.preferences.AppPreference
 import com.github.gionnio.platea.preferences.AppPreferences
 import com.github.gionnio.platea.preferences.PlayerBackend
@@ -19,20 +22,17 @@ import com.github.gionnio.platea.ui.isNotNullOrBlank
 import com.github.gionnio.platea.ui.playback.CurrentPlayback
 import com.github.gionnio.platea.ui.playback.findExternalSubtitle
 import com.github.gionnio.platea.ui.playback.toMediaMetadata
+import com.github.gionnio.platea.util.isForcedTrack
 import com.github.gionnio.platea.util.profile.Codec
 import com.github.gionnio.platea.util.subtitleMimeTypes
-import com.github.gionnio.platea.PlaybackJournal
-import com.github.gionnio.platea.engine.PlayMethods
-import com.github.gionnio.platea.nas.NasConfig
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.extensions.mediaInfoApi
-import org.jellyfin.sdk.api.client.extensions.videosApi
+import org.jellyfin.sdk.api.client.extensions.videoApi
 import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.MediaSourceInfo
 import org.jellyfin.sdk.model.api.PlayMethod
 import org.jellyfin.sdk.model.api.PlaybackInfoDto
 import timber.log.Timber
-import com.github.gionnio.platea.engine.PlayMethod as EnginePlayMethod
 
 /** A title ready to be handed to the player, or why it cannot be played. */
 sealed interface ResolvedStream {
@@ -134,7 +134,7 @@ class StreamResolver(
                     Timber.i("Playback is remote for source: %s", source.id)
                     source.path
                 } else {
-                    api.videosApi.getVideoStreamUrl(
+                    api.videoApi.getVideoStreamUrl(
                         itemId = itemId,
                         mediaSourceId = source.id,
                         static = true,

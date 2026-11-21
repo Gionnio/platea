@@ -13,21 +13,21 @@ import com.github.gionnio.platea.util.PlateaDispatchers
 import com.google.common.cache.CacheBuilder
 import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.scopes.ActivityScoped
+import java.time.LocalDateTime
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.exception.InvalidStatusException
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.request.GetEpisodesRequest
 import timber.log.Timber
-import java.time.LocalDateTime
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Caches when media was lasted played. This is mostly used by the combined Continue Watching & Next Up home row.
@@ -125,7 +125,7 @@ class DatePlayedService
          */
         suspend fun invalidate(itemId: UUID) {
             val seriesId =
-                api.userLibraryApi.getItem(itemId = itemId).content.let {
+                api.libraryApi.getItem(itemId = itemId).content.let {
                     if (it.type == BaseItemKind.SERIES) {
                         itemId
                     } else {

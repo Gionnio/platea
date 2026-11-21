@@ -17,6 +17,9 @@ import com.github.gionnio.platea.ui.launchIO
 import com.github.gionnio.platea.util.PlateaDispatchers
 import com.github.gionnio.platea.util.profile.Codec
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -29,12 +32,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.client.extensions.audioApi
 import org.jellyfin.sdk.api.client.extensions.libraryApi
-import org.jellyfin.sdk.api.client.extensions.universalAudioApi
 import timber.log.Timber
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Simple service to play theme song music
@@ -92,7 +92,7 @@ class ThemeSongPlayer
                             val themeSongs by api.libraryApi.getThemeSongs(itemId)
                             themeSongs.items.randomOrNull()?.let { theme ->
                                 val url =
-                                    api.universalAudioApi.getUniversalAudioStreamUrl(
+                                    api.audioApi.getUniversalAudioStreamUrl(
                                         theme.id,
                                         container =
                                             listOf(

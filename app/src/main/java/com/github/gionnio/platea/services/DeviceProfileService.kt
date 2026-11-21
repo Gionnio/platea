@@ -50,8 +50,6 @@ class DeviceProfileService
                             maxBitrate = prefs.maxBitrate.toInt(),
                             overrides = prefs.overrides,
                             experimental = appPrefs.experimentalPreferences,
-                            jellyfinTenEleven =
-                                serverVersion != null && serverVersion >= ServerVersion(10, 11, 0),
                         )
                     if (deviceProfile == null || this@DeviceProfileService.configuration != newConfig) {
                         this@DeviceProfileService.configuration = newConfig
@@ -66,7 +64,6 @@ class DeviceProfileService
                                 dolbyVisionELDirectPlay = newConfig.overrides.directPlayDolbyVisionEL,
                                 decodeAv1 = prefs.overrides.decodeAv1,
                                 preferAc3ForSurround = appPrefs.experimentalPreferences.enabled { preferAc3Surround },
-                                jellyfinTenEleven = newConfig.jellyfinTenEleven,
                             )
                     }
                     this@DeviceProfileService.deviceProfile!!
@@ -81,5 +78,4 @@ data class DeviceProfileConfiguration(
     val maxBitrate: Int,
     val overrides: PlaybackOverrides,
     val experimental: ExperimentalPreferences,
-    val jellyfinTenEleven: Boolean,
 )

@@ -8,6 +8,8 @@ import com.github.gionnio.platea.ui.launchDefault
 import com.github.gionnio.platea.ui.launchIO
 import com.github.gionnio.platea.ui.playback.MediaSegmentState
 import com.github.gionnio.platea.ui.playback.PlaybackState
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -16,14 +18,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.mediaSegmentsApi
+import org.jellyfin.sdk.api.client.extensions.mediaSegmentApi
 import org.jellyfin.sdk.model.api.MediaSegmentDto
 import org.jellyfin.sdk.model.api.MediaSegmentType
 import org.jellyfin.sdk.model.extensions.inWholeTicks
 import org.jellyfin.sdk.model.extensions.ticks
 import timber.log.Timber
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Follows the position of the current title through its segments (intro, credits, recap...): skips them or
@@ -60,7 +60,7 @@ class SegmentTracker(
             scope.launchIO {
                 val segments =
                     try {
-                        api.mediaSegmentsApi.getItemSegments(itemId).content.items
+                        api.mediaSegmentApi.getItemSegments(itemId).content.items
                     } catch (ex: CancellationException) {
                         throw ex
                     } catch (ex: Exception) {

@@ -36,6 +36,8 @@ data class VideoCapabilities(
     val dolbyVisionDecoders: List<String>,
     val maxWidth: Int,
     val maxHeight: Int,
+    /** A hardware AV1 decoder; the platform software one (`c2.android.av1`) is too slow for 4K on TV boxes. */
+    val av1: Boolean = false,
 )
 
 /** HDR formats and modes of the connected display (`Display.HdrCapabilities`, `Display.Mode`). */

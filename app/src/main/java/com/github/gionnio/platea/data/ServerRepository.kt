@@ -11,6 +11,10 @@ import com.github.gionnio.platea.services.hilt.IoDispatcher
 import com.github.gionnio.platea.ui.toServerString
 import com.github.gionnio.platea.util.PlateaDispatchers
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.ZonedDateTime
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -24,17 +28,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.jellyfin.sdk.Jellyfin
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.quickConnectApi
+import org.jellyfin.sdk.api.client.extensions.authenticationApi
 import org.jellyfin.sdk.api.client.extensions.systemApi
 import org.jellyfin.sdk.api.client.extensions.userApi
 import org.jellyfin.sdk.model.api.AuthenticationResult
 import org.jellyfin.sdk.model.api.UserDto
 import org.jellyfin.sdk.model.serializer.toUUIDOrNull
 import timber.log.Timber
-import java.time.ZonedDateTime
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Handles managing the current server & user as well as adding & removing new ones
@@ -309,7 +309,7 @@ class ServerRepository
                     Timber.e("No user logged in for Quick Connect authorization")
                     throw IllegalStateException("Must be logged in to authorize Quick Connect")
                 }
-                val response = apiClient.quickConnectApi.authorizeQuickConnect(code, userId)
+                val response = apiClient.authenticationApi.authorizeQuickConnect(code, userId)
                 response.content
             }
 

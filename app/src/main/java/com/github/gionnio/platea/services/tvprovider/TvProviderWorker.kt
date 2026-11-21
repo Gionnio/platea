@@ -29,20 +29,20 @@ import com.github.gionnio.platea.services.LatestNextUpService
 import com.github.gionnio.platea.ui.SlimItemFields
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.time.ZoneId
+import java.util.Date
+import java.util.UUID
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.flow.firstOrNull
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.exception.ApiClientException
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.request.GetLatestMediaRequest
 import org.jellyfin.sdk.model.extensions.ticks
 import org.jellyfin.sdk.model.serializer.toUUIDOrNull
 import timber.log.Timber
-import java.time.ZoneId
-import java.util.Date
-import java.util.UUID
-import kotlin.time.Duration.Companion.minutes
 
 /**
  * Updates the Android OS resume watching row for a given Jellyfin user
@@ -261,7 +261,7 @@ class TvProviderWorker
             val channelsPrefs = context.getSharedPreferences("channels", Context.MODE_PRIVATE)
 
             val latest =
-                api.userLibraryApi
+                api.libraryApi
                     .getLatestMedia(
                         GetLatestMediaRequest(
                             fields = SlimItemFields,

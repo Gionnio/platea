@@ -1,5 +1,7 @@
 package com.github.gionnio.platea.engine.capability
 
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.media.MediaCodecInfo.CodecProfileLevel
@@ -80,7 +82,15 @@ class AndroidCapabilityService(
 
         val hevc = profiles(MediaFormat.MIMETYPE_VIDEO_HEVC)
         val dv = profiles(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION)
-        val av1 = profiles(MediaFormat.MIMETYPE_VIDEO_AV1)
+        // AV1 counts only with a hardware decoder (same choice as Wholphin #2200)
+        val av1Decoders =
+            decoders.filter { info ->
+                info.isHardwareAccelerated && info.supportedTypes.any { it.equals(MediaFormat.MIMETYPE_VIDEO_AV1, ignoreCase = true) }
+            }
+        val av1 =
+            av1Decoders.flatMap { info ->
+                runCatching { info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AV1).profileLevels.map { it.profile } }.getOrDefault(emptyList())
+            }.toSet()
         val dvDecoders =
             decoders
                 .filter { info -> info.supportedTypes.any { it.equals(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, ignoreCase = true) } }
@@ -109,6 +119,7 @@ class AndroidCapabilityService(
             dolbyVisionDecoders = dvDecoders,
             maxWidth = maxWidth,
             maxHeight = maxHeight,
+            av1 = av1Decoders.isNotEmpty(),
         )
     }
 
@@ -132,6 +143,7 @@ class AndroidCapabilityService(
      * Passthrough from Media3 [Media3AudioCapabilities]: it reads the HDMI sink (and the Fire OS surround setting),
      * unlike `AudioTrack.isDirectPlaybackSupported`, which on Fire OS answers yes even when the TV accepts only PCM.
      */
+    @OptIn(UnstableApi::class)
     private fun readAudio(): AudioCapabilities {
         val sink = Media3AudioCapabilities.getCapabilities(appContext, Media3AudioAttributes.DEFAULT, null, emptyList())
         val compressed =

@@ -9,6 +9,11 @@ import com.github.gionnio.platea.data.model.BaseItem
 import com.github.gionnio.platea.ui.SlimItemFields
 import com.github.gionnio.platea.util.LocalDateTimeSerializer
 import com.github.gionnio.platea.util.PlateaDispatchers
+import java.time.LocalDateTime
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.sync.Semaphore
@@ -18,8 +23,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.itemsApi
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
+import org.jellyfin.sdk.api.client.extensions.showApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ItemSortBy
 import org.jellyfin.sdk.model.api.MediaType
@@ -28,11 +33,6 @@ import org.jellyfin.sdk.model.api.request.GetNextUpRequest
 import org.jellyfin.sdk.model.api.request.GetResumeItemsRequest
 import org.jellyfin.sdk.model.serializer.UUIDSerializer
 import timber.log.Timber
-import java.time.LocalDateTime
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Get continue watching and next up items for users
@@ -65,7 +65,7 @@ class LatestNextUpService
                     enableTotalRecordCount = false,
                 )
             val items =
-                api.itemsApi
+                api.libraryApi
                     .getResumeItems(request)
                     .content
                     .items
@@ -101,7 +101,7 @@ class LatestNextUpService
                     enableTotalRecordCount = false,
                 )
             val nextUp =
-                api.tvShowsApi
+                api.showApi
                     .getNextUp(request)
                     .content
                     .items
@@ -228,7 +228,7 @@ class LatestNextUpService
             var changed = false
             removed.forEach { (seriesId, timestamp) ->
                 val item =
-                    api.itemsApi
+                    api.libraryApi
                         .getItems(
                             userId = userId,
                             parentId = seriesId,

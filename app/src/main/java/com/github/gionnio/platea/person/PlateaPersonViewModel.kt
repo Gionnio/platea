@@ -8,14 +8,19 @@ import com.github.gionnio.platea.data.ServerRepository
 import com.github.gionnio.platea.data.model.BaseItem
 import com.github.gionnio.platea.services.ImageUrlService
 import com.github.gionnio.platea.services.NavigationManager
+import com.github.gionnio.platea.ui.FocusMemory
 import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.util.PlateaDispatchers
-import com.github.gionnio.platea.ui.FocusMemory
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.UUID
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +28,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.itemsApi
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.ItemFields
@@ -32,11 +36,6 @@ import org.jellyfin.sdk.model.api.ItemSortBy
 import org.jellyfin.sdk.model.api.SortOrder
 import org.jellyfin.sdk.model.api.request.GetItemsRequest
 import timber.log.Timber
-import java.time.LocalDate
-import java.time.Period
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.UUID
 
 data class PlateaPersonState(
     val person: BaseItem? = null,
@@ -82,7 +81,7 @@ class PlateaPersonViewModel
         fun load() {
             viewModelScope.launch(PlateaDispatchers.IO) {
                 runCatching {
-                    val person = async { BaseItem(api.userLibraryApi.getItem(personId).content) }
+                    val person = async { BaseItem(api.libraryApi.getItem(personId).content) }
                     val movies = async { titles(BaseItemKind.MOVIE) }
                     val series = async { titles(BaseItemKind.SERIES) }
                     val p = person.await()
@@ -95,7 +94,7 @@ class PlateaPersonViewModel
         }
 
         private suspend fun titles(kind: BaseItemKind): List<BaseItem> =
-            api.itemsApi
+            api.libraryApi
                 .getItems(
                     GetItemsRequest(
                         userId = serverRepository.currentUser?.id,

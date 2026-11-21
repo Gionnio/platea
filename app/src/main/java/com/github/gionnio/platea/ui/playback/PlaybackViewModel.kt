@@ -14,6 +14,7 @@ import androidx.media3.common.text.CueGroup
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import com.github.gionnio.platea.R
 import com.github.gionnio.platea.data.ItemPlaybackDao
 import com.github.gionnio.platea.data.ItemPlaybackRepository
 import com.github.gionnio.platea.data.ServerRepository
@@ -21,6 +22,15 @@ import com.github.gionnio.platea.data.model.BaseItem
 import com.github.gionnio.platea.data.model.Chapter
 import com.github.gionnio.platea.data.model.Playlist
 import com.github.gionnio.platea.data.model.PlaylistItem
+import com.github.gionnio.platea.engine.DolbyVisionCheck
+import com.github.gionnio.platea.engine.FallbackPolicy
+import com.github.gionnio.platea.engine.RetryBudget
+import com.github.gionnio.platea.engine.StallWatchdog
+import com.github.gionnio.platea.playback.PlayerDiagnostics
+import com.github.gionnio.platea.playback.RemoteCommands
+import com.github.gionnio.platea.playback.ResolvedStream
+import com.github.gionnio.platea.playback.SegmentTracker
+import com.github.gionnio.platea.playback.StreamResolver
 import com.github.gionnio.platea.preferences.AppPreference
 import com.github.gionnio.platea.preferences.PlayerBackend
 import com.github.gionnio.platea.preferences.ShowNextUpWhen
@@ -43,21 +53,11 @@ import com.github.gionnio.platea.ui.launchIO
 import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.ui.onMain
 import com.github.gionnio.platea.ui.showToast
-import com.github.gionnio.platea.R
-import com.github.gionnio.platea.engine.DolbyVisionCheck
-import com.github.gionnio.platea.engine.FallbackPolicy
-import com.github.gionnio.platea.playback.PlayerDiagnostics
-import com.github.gionnio.platea.playback.RemoteCommands
-import com.github.gionnio.platea.playback.ResolvedStream
-import com.github.gionnio.platea.playback.SegmentTracker
-import com.github.gionnio.platea.playback.StreamResolver
-import com.github.gionnio.platea.engine.RetryBudget
-import com.github.gionnio.platea.engine.StallWatchdog
 import com.github.gionnio.platea.util.ExceptionHandler
 import com.github.gionnio.platea.util.LoadingState
+import com.github.gionnio.platea.util.PlateaDispatchers
 import com.github.gionnio.platea.util.PlaybackItemState
 import com.github.gionnio.platea.util.TrackActivityPlaybackListener
-import com.github.gionnio.platea.util.PlateaDispatchers
 import com.github.gionnio.platea.util.checkForSupport
 import com.github.gionnio.platea.util.profile.Codec
 import com.github.gionnio.platea.util.supportItemKinds
@@ -66,6 +66,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Date
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -80,22 +84,18 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.api.client.extensions.sessionApi
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
-import org.jellyfin.sdk.api.client.extensions.trickplayApi
-import org.jellyfin.sdk.model.serializer.toUUIDOrNull
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.showApi
+import org.jellyfin.sdk.api.client.extensions.trickPlayApi
 import org.jellyfin.sdk.model.DeviceInfo
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.MediaStreamType
 import org.jellyfin.sdk.model.api.PlayMethod
 import org.jellyfin.sdk.model.api.VideoRange
 import org.jellyfin.sdk.model.api.VideoRangeType
+import org.jellyfin.sdk.model.serializer.toUUIDOrNull
 import timber.log.Timber
-import java.util.Date
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * This [ViewModel] is responsible for playing media including moving through playlists (including next up episodes)
@@ -343,7 +343,7 @@ class PlaybackViewModel
             val plateaQueueStart =
                 (destination as? Destination.PlaybackList)?.startIndex?.takeIf { it in 1 until Playlist.MAX_SIZE && !destination.shuffle } ?: 0
             var queueResumeMs = 0L
-            val queriedItem = api.userLibraryApi.getItem(itemId).content
+            val queriedItem = api.libraryApi.getItem(itemId).content
             val playlistItem =
                 if (queriedItem.type.playable) {
                     PlaylistItem.Media(BaseItem(queriedItem, false))
@@ -406,7 +406,7 @@ class PlaybackViewModel
             val intros =
                 // If not resuming playback & cinema mode is enabled, get potential intros
                 if (positionMs == 0L && preferences.appPreferences.playbackPreferences.cinemaMode) {
-                    api.userLibraryApi
+                    api.libraryApi
                         .getIntros(
                             itemId = playlistItem.id,
                             userId = serverRepository.currentUser?.id,
@@ -1182,7 +1182,7 @@ class PlaybackViewModel
                 val previous =
                     runCatching {
                         val around =
-                            api.tvShowsApi
+                            api.showApi
                                 .getEpisodes(seriesId, adjacentTo = current.id, userId = serverRepository.currentUser?.id, fields = com.github.gionnio.platea.ui.DetailItemFields)
                                 .content.items
                         around.getOrNull(around.indexOfFirst { it.id == current.id } - 1)
@@ -1375,7 +1375,7 @@ class PlaybackViewModel
             val itemId = p.item.id
             val mediaSourceId = sourceId?.toUUIDOrNull()
             return com.github.gionnio.platea.player.TrickplaySource(info) { sheet ->
-                api.trickplayApi.getTrickplayTileImageUrl(itemId, info.width, sheet, mediaSourceId)
+                api.trickPlayApi.getTrickplayTileImageUrl(itemId, info.width, sheet, mediaSourceId)
             }
         }
 

@@ -1,11 +1,11 @@
 package com.github.gionnio.platea.services
 
-import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.playStateApi
-import org.jellyfin.sdk.model.api.UserItemDataDto
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.client.extensions.userDataApi
+import org.jellyfin.sdk.model.api.UserItemDataDto
 
 /**
  * Marks titles as watched or not watched on the server
@@ -23,9 +23,9 @@ class WatchedService
         ): UserItemDataDto {
             datePlayedService.invalidate(itemId)
             return if (played) {
-                api.playStateApi.markPlayedItem(itemId).content
+                api.userDataApi.markPlayedItem(itemId).content
             } else {
-                api.playStateApi.markUnplayedItem(itemId).content
+                api.userDataApi.markUnplayedItem(itemId).content
             }
         }
     }

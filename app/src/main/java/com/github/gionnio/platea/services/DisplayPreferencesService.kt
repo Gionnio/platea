@@ -3,13 +3,13 @@ package com.github.gionnio.platea.services
 import android.content.Context
 import com.github.gionnio.platea.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.displayPreferencesApi
+import org.jellyfin.sdk.api.client.extensions.displayPreferenceApi
 import org.jellyfin.sdk.model.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class DisplayPreferencesService
@@ -24,7 +24,7 @@ class DisplayPreferencesService
             userId: UUID,
             displayPreferencesId: String = DEFAULT_DISPLAY_PREF_ID,
             client: String = DEFAULT_CLIENT,
-        ) = api.displayPreferencesApi
+        ) = api.displayPreferenceApi
             .getDisplayPreferences(
                 userId = userId,
                 displayPreferencesId = displayPreferencesId,
@@ -43,7 +43,7 @@ class DisplayPreferencesService
                     current.customPrefs.toMutableMap().apply {
                         block.invoke(this)
                     }
-                api.displayPreferencesApi.updateDisplayPreferences(
+                api.displayPreferenceApi.updateDisplayPreferences(
                     displayPreferencesId = displayPreferencesId,
                     userId = userId,
                     client = client,

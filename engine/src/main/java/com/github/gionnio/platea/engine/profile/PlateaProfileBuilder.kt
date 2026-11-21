@@ -70,7 +70,12 @@ class PlateaProfileBuilder : ProfileBuilder {
                 directPlayProfile {
                     type = DlnaProfileType.VIDEO
                     container("mkv", "webm", "mp4", "m4v", "mov", "ts", "mpegts", "m2ts", "mpeg", "mpg", "vob", "ogg")
-                    videoCodec("hevc", "h264", "av1", "vp9", "vp8", "mpeg2video", "mpeg4", "vc1")
+                    // without a hardware AV1 decoder the server converts AV1 instead of a stuttering software decode
+                    if (video.av1) {
+                        videoCodec("hevc", "h264", "av1", "vp9", "vp8", "mpeg2video", "mpeg4", "vc1")
+                    } else {
+                        videoCodec("hevc", "h264", "vp9", "vp8", "mpeg2video", "mpeg4", "vc1")
+                    }
                     audioCodec(*audioCodecs.toTypedArray())
                 }
                 directPlayProfile {
@@ -124,7 +129,7 @@ class PlateaProfileBuilder : ProfileBuilder {
                 subtitles(policy)
             }
 
-        Log.i(TAG, "Profile: HEVC ranges=$hevcRanges, AV1 ranges=$av1Ranges, audio=$audioCodecs, policy=$policy")
+        Log.i(TAG, "Profile: HEVC ranges=$hevcRanges, AV1 hardware=${video.av1} ranges=$av1Ranges, audio=$audioCodecs, policy=$policy")
         return profile
     }
 

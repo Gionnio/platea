@@ -9,7 +9,6 @@ import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import org.jellyfin.sdk.Jellyfin
 import org.jellyfin.sdk.model.ServerVersion
 import timber.log.Timber
 import javax.inject.Inject
@@ -87,6 +86,7 @@ class PlateaApplication :
         lateinit var instance: PlateaApplication
             private set
 
-        val minimumServerVersion: ServerVersion = Jellyfin.minimumVersion
+        // Jellyfin SDK 1.9 (Jellyfin 12.4): older servers miss fields it requires, such as MediaStream.IsOriginal
+        val minimumServerVersion: ServerVersion = ServerVersion(12, 0, 0)
     }
 }

@@ -961,6 +961,7 @@ fun subtitle(
         isExternal = false,
         isTextSubtitleStream = true,
         supportsExternalStream = true,
+        isOriginal = true,
         title = title,
     )
 

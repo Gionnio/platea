@@ -56,15 +56,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.jellyfin.sdk.api.client.extensions.mediaSegmentApi
+import org.jellyfin.sdk.api.client.extensions.videoApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.extensions.mediaInfoApi
-import org.jellyfin.sdk.api.client.extensions.mediaSegmentsApi
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
-import org.jellyfin.sdk.api.client.extensions.videosApi
+import org.jellyfin.sdk.api.operations.LibraryApi
 import org.jellyfin.sdk.api.operations.MediaInfoApi
-import org.jellyfin.sdk.api.operations.MediaSegmentsApi
-import org.jellyfin.sdk.api.operations.UserLibraryApi
-import org.jellyfin.sdk.api.operations.VideosApi
+import org.jellyfin.sdk.api.operations.MediaSegmentApi
+import org.jellyfin.sdk.api.operations.VideoApi
 import org.jellyfin.sdk.api.sockets.SocketApi
 import org.jellyfin.sdk.model.DeviceInfo
 import org.jellyfin.sdk.model.UUID
@@ -106,10 +106,10 @@ abstract class PlaybackViewModelTestBase {
     protected val mockImageUrlService = mockk<ImageUrlService>(relaxed = true)
     protected val mockScreensaverService = mockk<ScreensaverService>(relaxed = true)
 
-    protected val mockUserLibraryApi = mockk<UserLibraryApi>()
+    protected val mockUserLibraryApi = mockk<LibraryApi>()
     protected val mockMediaInfoApi = mockk<MediaInfoApi>()
-    protected val mockVideosApi = mockk<VideosApi>()
-    protected val mockMediaSegmentsApi = mockk<MediaSegmentsApi>()
+    protected val mockVideosApi = mockk<VideoApi>()
+    protected val mockMediaSegmentsApi = mockk<MediaSegmentApi>()
     protected val mockPlayer = mockk<Player>(relaxed = true)
 
     fun create(destination: Destination): PlaybackViewModel =
@@ -181,10 +181,10 @@ abstract class PlaybackViewModelTestBase {
     fun setUp() {
         PlateaDispatchers.configure(testDispatcher)
 
-        every { mockApi.userLibraryApi } returns mockUserLibraryApi
+        every { mockApi.libraryApi } returns mockUserLibraryApi
         every { mockApi.mediaInfoApi } returns mockMediaInfoApi
-        every { mockApi.videosApi } returns mockVideosApi
-        every { mockApi.mediaSegmentsApi } returns mockMediaSegmentsApi
+        every { mockApi.videoApi } returns mockVideosApi
+        every { mockApi.mediaSegmentApi } returns mockMediaSegmentsApi
         // The command stream stays open and silent: a stream that ends would be reopened forever by the tests' clock
         every { mockApi.webSocket } returns
             mockk<SocketApi> {

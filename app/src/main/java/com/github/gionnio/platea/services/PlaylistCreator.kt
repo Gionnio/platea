@@ -14,9 +14,12 @@ import com.github.gionnio.platea.ui.playback.playable
 import com.github.gionnio.platea.util.GetEpisodesRequestHandler
 import com.github.gionnio.platea.util.GetItemsRequestHandler
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.tvShowsApi
-import org.jellyfin.sdk.api.client.extensions.videosApi
+import org.jellyfin.sdk.api.client.extensions.showApi
+import org.jellyfin.sdk.api.client.extensions.videoApi
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.CollectionType
@@ -26,9 +29,6 @@ import org.jellyfin.sdk.model.api.LocationType
 import org.jellyfin.sdk.model.api.SortOrder
 import org.jellyfin.sdk.model.api.request.GetEpisodesRequest
 import org.jellyfin.sdk.model.api.request.GetItemsRequest
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Creates the playback queue (not a Jellyfin server playlist)
@@ -167,7 +167,7 @@ class PlaylistCreator
                     val seriesId = item.seriesId
                     if (seriesId != null) {
                         if (shuffled) {
-                            api.tvShowsApi
+                            api.showApi
                                 .getEpisodes(
                                     seriesId = seriesId,
                                     seasonId = item.id,
@@ -196,7 +196,7 @@ class PlaylistCreator
 
                 BaseItemKind.SERIES -> {
                     if (shuffled) {
-                        api.tvShowsApi
+                        api.showApi
                             .getEpisodes(
                                 seriesId = item.id,
                                 limit = Playlist.MAX_SIZE,
@@ -208,9 +208,9 @@ class PlaylistCreator
                                 PlaylistCreationResult.Success(Playlist(it))
                             }
                     } else {
-                        val result by api.tvShowsApi.getNextUp(seriesId = item.id)
+                        val result by api.showApi.getNextUp(seriesId = item.id)
                         val nextUp =
-                            result.items.firstOrNull() ?: api.tvShowsApi
+                            result.items.firstOrNull() ?: api.showApi
                                 .getEpisodes(
                                     item.id,
                                     limit = 1,
@@ -244,7 +244,7 @@ class PlaylistCreator
                             add(PlaylistItem.Media(BaseItem(item, false)))
 
                             if (item.partCount.gt(1)) {
-                                api.videosApi
+                                api.videoApi
                                     .getAdditionalPart(item.id)
                                     .content.items
                                     .map {
@@ -276,7 +276,7 @@ class PlaylistCreator
                         add(PlaylistItem.Media(BaseItem(ep, useSeriesForPrimary)))
                         if (ep.partCount.gt(1)) {
                             val parts =
-                                api.videosApi.getAdditionalPart(ep.id).content.items.map { part ->
+                                api.videoApi.getAdditionalPart(ep.id).content.items.map { part ->
                                     PlaylistItem.Media(BaseItem(part, useSeriesForPrimary))
                                 }
                             addAll(parts)

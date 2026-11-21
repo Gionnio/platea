@@ -4,16 +4,16 @@ import android.app.SearchManager
 import android.content.Intent
 import com.github.gionnio.platea.data.ServerRepository
 import com.github.gionnio.platea.data.model.BaseItem
-import com.github.gionnio.platea.ui.nav.SeasonEpisodeIds
 import com.github.gionnio.platea.ui.nav.Destination
+import com.github.gionnio.platea.ui.nav.SeasonEpisodeIds
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.serializer.toUUIDOrNull
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class IntentService
@@ -61,7 +61,7 @@ class IntentService
 
             val item =
                 try {
-                    api.userLibraryApi
+                    api.libraryApi
                         .getItem(itemId)
                         .content
                         .let { BaseItem(it) }

@@ -1,36 +1,36 @@
 package com.github.gionnio.platea.details
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.gionnio.platea.PlaybackEvents
 import com.github.gionnio.platea.data.ChosenStreams
 import com.github.gionnio.platea.data.ItemPlaybackRepository
 import com.github.gionnio.platea.data.model.BaseItem
 import com.github.gionnio.platea.data.model.Person
 import com.github.gionnio.platea.data.model.Trailer
-import com.github.gionnio.platea.services.WatchedService
 import com.github.gionnio.platea.services.NavigationManager
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import com.github.gionnio.platea.services.StreamChoiceService
 import com.github.gionnio.platea.services.TrailerService
 import com.github.gionnio.platea.services.UserPreferencesService
+import com.github.gionnio.platea.services.WatchedService
 import com.github.gionnio.platea.ui.nav.Destination
 import com.github.gionnio.platea.util.PlateaDispatchers
-import com.github.gionnio.platea.PlaybackEvents
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.api.client.ApiClient
-import org.jellyfin.sdk.api.client.extensions.userLibraryApi
+import org.jellyfin.sdk.api.client.extensions.libraryApi
 import org.jellyfin.sdk.model.api.MediaStreamType
 import timber.log.Timber
-import java.util.UUID
 
 data class PlateaMovieState(
     val movie: BaseItem? = null,
@@ -78,7 +78,7 @@ class PlateaMovieViewModel
         fun load(everything: Boolean) {
             viewModelScope.launch(PlateaDispatchers.IO) {
                 runCatching {
-                    val movie = BaseItem(api.userLibraryApi.getItem(movieId).content)
+                    val movie = BaseItem(api.libraryApi.getItem(movieId).content)
                     val chosen = itemPlaybackRepository.getSelectedTracks(movieId, movie, userPreferencesService.getCurrent())
                     _state.update { it.copy(movie = movie, chosen = chosen, loading = false, error = null) }
                     if (everything) {
