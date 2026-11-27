@@ -1,5 +1,6 @@
 package com.github.gionnio.platea.ui
 
+import coil3.svg.SvgDecoder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import coil3.ImageLoader
@@ -92,6 +93,8 @@ fun CoilConfig(
             }.crossfade(false)
             .logger(if (debugLogging) DebugLogger() else null)
             .components {
+                // Logos stored as SVG on the server, drawn at the size they take on screen
+                add(SvgDecoder.Factory())
                 add(
                     OkHttpNetworkFetcherFactory(
                         cacheStrategy = { PlateaCacheStrategy(CacheControlCacheStrategy()) },

@@ -292,7 +292,7 @@ class PlateaSeriesViewModel
 
         fun backdrop(item: BaseItem) = imageUrlService.getOwnImageUrl(item, ImageType.BACKDROP, maxWidth = 1920)
 
-        fun logo(item: BaseItem) = imageUrlService.getOwnImageUrl(item, ImageType.LOGO, maxHeight = 260)
+        fun logo(item: BaseItem) = imageUrlService.getOwnImageUrl(item, ImageType.LOGO)
 
         fun still(episode: BaseItem) = imageUrlService.getItemImageUrl(episode, ImageType.PRIMARY, fillWidth = 480, useSeriesForPrimary = false)
 

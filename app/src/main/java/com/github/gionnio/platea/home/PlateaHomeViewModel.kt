@@ -561,7 +561,7 @@ class PlateaHomeViewModel
 
         // --- Formatting ---
 
-        private fun logo(id: UUID?) = id?.let { imageUrlService.getItemImageUrl(itemId = it, imageType = ImageType.LOGO, maxHeight = 260) }
+        private fun logo(id: UUID?) = id?.let { imageUrlService.getLogoUrl(it) }
 
         private fun backdrop(id: UUID) = imageUrlService.getItemImageUrl(itemId = id, imageType = ImageType.BACKDROP, maxWidth = 1920)
 

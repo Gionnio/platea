@@ -243,8 +243,19 @@ class ImageUrlService
         ): String? {
             val tag =
                 if (imageType == ImageType.BACKDROP) item.data.backdropImageTags?.firstOrNull() else item.data.imageTags?.get(imageType)
+            if (imageType == ImageType.LOGO) return tag?.let { getLogoUrl(item.id, it) }
             return tag?.let { getItemImageUrl(itemId = item.id, imageType = imageType, maxWidth = maxWidth, maxHeight = maxHeight, tag = it) }
         }
+
+        /**
+         * A logo at its original quality. With format=Svg and no size the server sends an SVG logo as it is
+         * (other logos come back as PNG): a size would make it rasterize the SVG at its nominal size, which for
+         * some TMDB logos is 128x24 and looks blurred once enlarged.
+         */
+        fun getLogoUrl(
+            itemId: UUID,
+            tag: String? = null,
+        ) = getItemImageUrl(itemId = itemId, imageType = ImageType.LOGO, tag = tag, format = ImageFormat.SVG)
 
         fun getItemImageUrl(
             itemId: UUID,

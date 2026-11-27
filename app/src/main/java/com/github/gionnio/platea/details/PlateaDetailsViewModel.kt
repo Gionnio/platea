@@ -56,7 +56,7 @@ class PlateaDetailsViewModel
 
         fun backdrop(item: BaseItem) = imageUrlService.getOwnImageUrl(item, ImageType.BACKDROP, maxWidth = 1920)
 
-        fun logo(item: BaseItem) = imageUrlService.getOwnImageUrl(item, ImageType.LOGO, maxHeight = 260)
+        fun logo(item: BaseItem) = imageUrlService.getOwnImageUrl(item, ImageType.LOGO)
 
         fun meta(item: BaseItem): List<String> =
             listOfNotNull(
